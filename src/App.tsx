@@ -136,6 +136,17 @@ function App() {
     fetchCurrentTemplate();
   }, [apiState.templateKey]);
 
+  // 텍스트 영역 높이 자동 조정
+  useEffect(() => {
+    setTimeout(() => {
+      const textareas = document.querySelectorAll('.auto-resize-textarea');
+      textareas.forEach((textarea: any) => {
+        textarea.style.height = 'auto';
+        textarea.style.height = textarea.scrollHeight + 'px';
+      });
+    }, 0);
+  }, [editingTemplate]);
+
   // API 로딩 중 경과 시간 업데이트
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -517,7 +528,7 @@ function App() {
                             }));
                             handleAutoResizeTextarea(e);
                           }}
-                          className="api-input api-textarea"
+                          className="api-input api-textarea auto-resize-textarea"
                           rows={4}
                           style={{ width: '100%', resize: 'none', overflow: 'hidden' }}
                         />
@@ -570,7 +581,7 @@ function App() {
                               }));
                               handleAutoResizeTextarea(e);
                             }}
-                            className="api-input api-textarea"
+                            className="api-input api-textarea auto-resize-textarea"
                             rows={4}
                             style={{ width: '100%', resize: 'none', overflow: 'hidden' }}
                           />
