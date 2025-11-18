@@ -1,6 +1,27 @@
 /**
  * 템플릿 관련 API 서비스
+ *
+ * API Base: /api/v1/internal/course/description
  */
+
+interface TemplateListItem {
+  templateKey: string;
+  exampleCount: number;
+  promptCount: number;
+  hasCurriculum: boolean;
+  historyCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface TemplateListResponse {
+  code: string;
+  message: string;
+  data: {
+    totalCount: number;
+    templates: TemplateListItem[];
+  };
+}
 
 interface UpdateTemplatePayload {
   jsonBody?: string;
@@ -120,6 +141,67 @@ export async function deleteTemplate(
 
   if (!response.ok) {
     throw new Error(`Failed to delete template: ${response.statusText}`);
+  }
+
+  return response.json();
+}
+
+/**
+ * 템플릿 목록 조회 API
+ * GET /api/v1/internal/course/description/templates
+ * 모든 템플릿을 최신순(updatedAt 기준)으로 정렬하여 반환
+ */
+export async function listTemplates(): Promise<TemplateListResponse> {
+  const response = await fetch('/api/v1/internal/course/description/templates');
+
+  if (!response.ok) {
+    throw new Error(`Failed to list templates: ${response.statusText}`);
+  }
+
+  return response.json();
+}
+
+interface AutoCreateTemplatePayload {
+  craftJson: string;
+  templateKey: string;
+  examples?: string[];
+  prompts?: Array<{
+    id: string;
+    description: string;
+    content: string;
+    textCount: number;
+  }>;
+  curriculum?: {
+    name: string;
+    description: string;
+    content: string;
+  };
+}
+
+/**
+ * 템플릿 자동 생성 API
+ * POST /api/v1/internal/course/description/templates/auto
+ * CraftJSON 기반으로 템플릿을 자동으로 생성합니다
+ */
+export async function autoCreateTemplate(
+  payload: AutoCreateTemplatePayload
+): Promise<TemplateApiResponse<UpdateTemplateResponse>> {
+  const response = await fetch(
+    '/api/v1/internal/course/description/templates/auto',
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    }
+  );
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(
+      errorData.message || `Failed to create template: ${response.statusText}`
+    );
   }
 
   return response.json();
