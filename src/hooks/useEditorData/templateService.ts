@@ -62,14 +62,14 @@ interface UpdateTemplateResponse {
 
 /**
  * 템플릿 수정 API
- * PUT /api/v1/internal/course/description/templates/{templateKey}
+ * PUT /v1/internal/course/description/templates/{templateKey}
  */
 export async function updateTemplatePrompt(
   templateKey: string,
   payload: UpdateTemplatePayload
 ): Promise<TemplateApiResponse<UpdateTemplateResponse>> {
   const response = await fetch(
-    `/api/v1/internal/course/description/templates/${templateKey}`,
+    `http://localhost:8080/v1/internal/course/description/templates/${templateKey}`,
     {
       method: 'PUT',
       headers: {
@@ -91,13 +91,13 @@ export async function updateTemplatePrompt(
 
 /**
  * 템플릿 조회 API
- * GET /api/v1/internal/course/description/templates/{templateKey}
+ * GET /v1/internal/course/description/templates/{templateKey}
  */
 export async function getTemplate(
   templateKey: string
 ): Promise<TemplateApiResponse<unknown>> {
   const response = await fetch(
-    `/api/v1/internal/course/description/templates/${templateKey}`
+    `http://localhost:8080/v1/internal/course/description/templates/${templateKey}`
   );
 
   if (!response.ok) {
@@ -109,13 +109,13 @@ export async function getTemplate(
 
 /**
  * 템플릿 히스토리 조회 API
- * GET /api/v1/internal/course/description/templates/{templateKey}/history
+ * GET /v1/internal/course/description/templates/{templateKey}/history
  */
 export async function getTemplateHistory(
   templateKey: string
 ): Promise<TemplateApiResponse<unknown>> {
   const response = await fetch(
-    `/api/v1/internal/course/description/templates/${templateKey}/history`
+    `http://localhost:8080/v1/internal/course/description/templates/${templateKey}/history`
   );
 
   if (!response.ok) {
@@ -180,14 +180,14 @@ interface AutoCreateTemplatePayload {
 
 /**
  * 템플릿 자동 생성 API
- * POST /api/v1/internal/course/description/templates/auto
+ * POST /v1/internal/course/description/templates/auto
  * CraftJSON 기반으로 템플릿을 자동으로 생성합니다
  */
 export async function autoCreateTemplate(
   payload: AutoCreateTemplatePayload
 ): Promise<TemplateApiResponse<UpdateTemplateResponse>> {
   const response = await fetch(
-    '/api/v1/internal/course/description/templates/auto',
+    'http://localhost:8080/v1/internal/course/description/templates/auto',
     {
       method: 'POST',
       headers: {
