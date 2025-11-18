@@ -539,7 +539,7 @@ function App() {
                   {/* 프롬프트 섹션 */}
                   <div>
                     <h4 style={{ margin: '0 0 12px 0', color: '#1a1a1a', fontSize: '14px', fontWeight: '600' }}>
-                      프롬프트 ({editingTemplate.prompts?.length || 0}개)
+                      [{editingTemplate.templateKey}] 프롬프트 ({editingTemplate.prompts?.length || 0}개)
                     </h4>
                     <div className="prompts-list">
                       {editingTemplate.prompts?.map((prompt: any, index: number) => (
