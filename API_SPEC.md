@@ -24,7 +24,7 @@
 
 ### 요청
 ```
-GET /api/v1/internal/course/description/templates
+GET /v1/internal/course/description/templates
 ```
 
 ### 파라미터
@@ -85,7 +85,7 @@ GET /api/v1/internal/course/description/templates
 
 ### 요청
 ```
-GET /api/v1/internal/course/description/templates/{templateKey}
+GET /v1/internal/course/description/templates/{templateKey}
 ```
 
 ### 파라미터
@@ -128,7 +128,7 @@ GET /api/v1/internal/course/description/templates/{templateKey}
 
 ### 요청
 ```
-GET /api/v1/internal/course/description/templates/{templateKey}/history
+GET /v1/internal/course/description/templates/{templateKey}/history
 ```
 
 ### 파라미터
@@ -182,7 +182,7 @@ GET /api/v1/internal/course/description/templates/{templateKey}/history
 
 ### 요청
 ```
-PUT /api/v1/internal/course/description/templates/{templateKey}
+PUT /v1/internal/course/description/templates/{templateKey}
 ```
 
 ### 파라미터
@@ -246,7 +246,7 @@ PUT /api/v1/internal/course/description/templates/{templateKey}
 
 ### 요청
 ```
-DELETE /api/v1/internal/description/templates/{templateKey}
+DELETE /v1/internal/description/templates/{templateKey}
 ```
 
 ### 파라미터
@@ -394,7 +394,7 @@ async function updatePrompt(
 
 ### 요청
 ```
-POST /api/v1/internal/course/description/templates/auto
+POST /v1/internal/course/description/templates/auto
 ```
 
 ### 요청 본문
@@ -454,26 +454,26 @@ POST /api/v1/internal/course/description/templates/auto
 
 ### 1. 템플릿 목록 조회
 ```
-GET /api/v1/internal/course/description/templates
+GET /v1/internal/course/description/templates
 → 모든 템플릿의 메타데이터 반환
 ```
 
 ### 2. 원하는 템플릿 선택 후 상세 조회
 ```
-GET /api/v1/internal/course/description/templates/STORY
+GET /v1/internal/course/description/templates/STORY
 → 프롬프트, 예제, 커리큘럼 등 전체 정보 반환
 ```
 
 ### 3. 필요시 변경 이력 확인
 ```
-GET /api/v1/internal/course/description/templates/STORY/history
+GET /v1/internal/course/description/templates/STORY/history
 → 모든 이전 버전의 메타데이터 반환
 ```
 
 ### 4. 템플릿 수정 (또는 자동 생성)
 ```
-PUT /api/v1/internal/course/description/templates/STORY
-POST /api/v1/internal/course/description/templates/auto
+PUT /v1/internal/course/description/templates/STORY
+POST /v1/internal/course/description/templates/auto
 
 Content-Type: application/json
 
