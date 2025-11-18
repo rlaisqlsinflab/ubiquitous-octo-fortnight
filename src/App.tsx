@@ -277,7 +277,7 @@ function App() {
 
   const handleAutoResizeTextarea = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     e.target.style.height = 'auto';
-    e.target.style.height = Math.min(e.target.scrollHeight, 600) + 'px';
+    e.target.style.height = e.target.scrollHeight + 'px';
   };
 
   const handleSaveTemplate = async () => {
