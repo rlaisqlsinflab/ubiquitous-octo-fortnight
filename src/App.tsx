@@ -380,7 +380,7 @@ function App() {
       const response = await updateTemplatePrompt(cloneTemplateName, payload);
       console.log('Clone response:', response);
 
-      if (response?.data) {
+      if (response?.data || response?.statusCode === 'OK' || response?.code === '200') {
         // 복제된 템플릿으로 이동
         setApiState((prev) => ({
           ...prev,
@@ -390,6 +390,8 @@ function App() {
         setIsCloneModalOpen(false);
         setCloneTemplateName('');
         showMessage('success', `${cloneTemplateName} 템플릿이 생성되었습니다`);
+      } else {
+        throw new Error('API 응답이 예상과 다릅니다');
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류';
