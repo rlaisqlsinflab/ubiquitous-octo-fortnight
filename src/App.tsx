@@ -308,6 +308,7 @@ function App() {
           content: p.content,
           textCount: p.textCount,
         })),
+        examples: editingTemplate.examples?.filter((ex: string) => ex.trim()),
         curriculum: editingTemplate.curriculum,
       };
 
@@ -533,6 +534,81 @@ function App() {
                           style={{ width: '100%', resize: 'none', overflow: 'hidden' }}
                         />
                       </div>
+                    </div>
+                  )}
+
+                  {/* 예제 섹션 */}
+                  {editingTemplate.examples && editingTemplate.examples.length > 0 && (
+                    <div style={{ borderBottom: '1px solid #e0e0e0', paddingBottom: '16px' }}>
+                      <h4 style={{ margin: '0 0 12px 0', color: '#1a1a1a', fontSize: '14px', fontWeight: '600' }}>
+                        예제 ({editingTemplate.examples.length}개)
+                      </h4>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        {editingTemplate.examples.map((example: string, index: number) => (
+                          <div key={index}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                              <label style={{ display: 'block', fontSize: '12px', color: '#666', fontWeight: '500' }}>
+                                예제 {index + 1}
+                              </label>
+                              <button
+                                onClick={() => {
+                                  setEditingTemplate((prev: any) => ({
+                                    ...prev,
+                                    examples: prev.examples.filter((_: string, i: number) => i !== index),
+                                  }));
+                                }}
+                                style={{
+                                  padding: '4px 8px',
+                                  fontSize: '11px',
+                                  border: '1px solid #ddd',
+                                  backgroundColor: '#f5f5f5',
+                                  borderRadius: '4px',
+                                  cursor: 'pointer',
+                                  color: '#666',
+                                }}
+                              >
+                                삭제
+                              </button>
+                            </div>
+                            <textarea
+                              value={example}
+                              onChange={(e) => {
+                                const updatedExamples = [...editingTemplate.examples];
+                                updatedExamples[index] = e.target.value;
+                                setEditingTemplate((prev: any) => ({
+                                  ...prev,
+                                  examples: updatedExamples,
+                                }));
+                                handleAutoResizeTextarea(e);
+                              }}
+                              className="api-input api-textarea auto-resize-textarea"
+                              rows={3}
+                              style={{ width: '100%', resize: 'none', overflow: 'hidden' }}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                      <button
+                        onClick={() => {
+                          setEditingTemplate((prev: any) => ({
+                            ...prev,
+                            examples: [...(prev.examples || []), ''],
+                          }));
+                        }}
+                        style={{
+                          marginTop: '12px',
+                          padding: '8px 12px',
+                          fontSize: '12px',
+                          border: '1px solid #2563eb',
+                          backgroundColor: 'white',
+                          color: '#2563eb',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                          fontWeight: '500',
+                        }}
+                      >
+                        + 예제 추가
+                      </button>
                     </div>
                   )}
 
