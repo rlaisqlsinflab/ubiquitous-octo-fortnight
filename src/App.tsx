@@ -77,6 +77,10 @@ function App() {
   const [isUpdatingTemplate, setIsUpdatingTemplate] = useState(false);
   const [updateError, setUpdateError] = useState<string | null>(null);
   const [expandedPrompts, setExpandedPrompts] = useState<{ [key: string]: boolean }>({});
+  const [isCloneModalOpen, setIsCloneModalOpen] = useState(false);
+  const [cloneTemplateName, setCloneTemplateName] = useState('');
+  const [cloneError, setCloneError] = useState<string | null>(null);
+  const [isCloning, setIsCloning] = useState(false);
 
   // 템플릿 목록 조회
   useEffect(() => {
@@ -346,6 +350,56 @@ function App() {
     }));
   };
 
+  const handleCloneTemplate = async () => {
+    if (!cloneTemplateName.trim()) {
+      setCloneError('템플릿 이름을 입력해주세요');
+      return;
+    }
+
+    // 대문자와 '_'만 허용
+    if (!/^[A-Z_]+$/.test(cloneTemplateName)) {
+      setCloneError('대문자(A-Z)와 언더스코어(_)만 사용 가능합니다');
+      return;
+    }
+
+    setIsCloning(true);
+    setCloneError(null);
+
+    try {
+      const payload = {
+        prompts: editingTemplate.prompts?.map((p: any) => ({
+          id: p.id,
+          description: p.description,
+          content: p.content,
+          textCount: p.textCount,
+        })),
+        examples: editingTemplate.examples,
+        curriculum: editingTemplate.curriculum,
+      };
+
+      const response = await updateTemplatePrompt(cloneTemplateName, payload);
+      console.log('Clone response:', response);
+
+      if (response?.data) {
+        // 복제된 템플릿으로 이동
+        setApiState((prev) => ({
+          ...prev,
+          templateKey: cloneTemplateName,
+        }));
+
+        setIsCloneModalOpen(false);
+        setCloneTemplateName('');
+        showMessage('success', `${cloneTemplateName} 템플릿이 생성되었습니다`);
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류';
+      setCloneError(errorMessage);
+      showMessage('error', `복제 실패: ${errorMessage}`);
+    } finally {
+      setIsCloning(false);
+    }
+  };
+
   const handleSaveTemplate = async () => {
     if (!editingTemplate || !apiState.templateKey) {
       showMessage('error', '템플릿을 불러와주세요');
@@ -524,7 +578,30 @@ function App() {
             </div>
 
             <div className="prompt-edit-section">
-              <h3>프롬프트 수정 {editingTemplate?.templateKey && `[${editingTemplate.templateKey}]`}</h3>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                <h3 style={{ margin: 0 }}>프롬프트 수정 {editingTemplate?.templateKey && `[${editingTemplate.templateKey}]`}</h3>
+                {editingTemplate && (
+                  <button
+                    onClick={() => {
+                      setIsCloneModalOpen(true);
+                      setCloneTemplateName('');
+                      setCloneError(null);
+                    }}
+                    style={{
+                      padding: '8px 12px',
+                      fontSize: '12px',
+                      border: '1px solid #2563eb',
+                      backgroundColor: 'white',
+                      color: '#2563eb',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      fontWeight: '500',
+                    }}
+                  >
+                    📋 복제
+                  </button>
+                )}
+              </div>
               {isLoadingCurrentTemplate ? (
                 <div style={{ padding: '20px', textAlign: 'center', color: '#999' }}>
                   프롬프트를 불러오는 중...
@@ -854,6 +931,101 @@ function App() {
       {message && (
         <div className={`toast toast-${message.type}`}>
           {message.text}
+        </div>
+      )}
+
+      {/* 템플릿 복제 모달 */}
+      {isCloneModalOpen && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 2000,
+          }}
+          onClick={() => setIsCloneModalOpen(false)}
+        >
+          <div
+            style={{
+              backgroundColor: 'white',
+              borderRadius: '8px',
+              padding: '24px',
+              width: '90%',
+              maxWidth: '400px',
+              boxShadow: '0 10px 40px rgba(0, 0, 0, 0.2)',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 style={{ margin: '0 0 16px 0', color: '#1a1a1a' }}>템플릿 복제</h2>
+
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', fontSize: '12px', color: '#666', marginBottom: '8px', fontWeight: '500' }}>
+                새 템플릿 이름
+              </label>
+              <input
+                type="text"
+                value={cloneTemplateName}
+                onChange={(e) => {
+                  const value = e.target.value.toUpperCase();
+                  setCloneTemplateName(value);
+                  setCloneError(null);
+                }}
+                placeholder="예: MY_TEMPLATE (대문자와 _ 만 사용)"
+                className="api-input"
+                style={{ width: '100%' }}
+              />
+              <div style={{ fontSize: '11px', color: '#666', marginTop: '4px' }}>
+                대문자(A-Z)와 언더스코어(_)만 사용 가능합니다
+              </div>
+            </div>
+
+            {cloneError && (
+              <div className="error-message" style={{ marginBottom: '16px' }}>
+                <strong>Error:</strong> {cloneError}
+              </div>
+            )}
+
+            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => setIsCloneModalOpen(false)}
+                style={{
+                  padding: '10px 16px',
+                  border: '1px solid #ddd',
+                  backgroundColor: 'white',
+                  color: '#666',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontWeight: '500',
+                  fontSize: '12px',
+                }}
+              >
+                취소
+              </button>
+              <button
+                onClick={handleCloneTemplate}
+                disabled={isCloning}
+                style={{
+                  padding: '10px 16px',
+                  border: 'none',
+                  backgroundColor: '#2563eb',
+                  color: 'white',
+                  borderRadius: '4px',
+                  cursor: isCloning ? 'not-allowed' : 'pointer',
+                  fontWeight: '500',
+                  fontSize: '12px',
+                  opacity: isCloning ? 0.5 : 1,
+                }}
+              >
+                {isCloning ? '복제 중...' : '복제'}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
