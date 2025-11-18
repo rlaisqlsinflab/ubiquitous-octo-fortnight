@@ -77,12 +77,19 @@ function App() {
     const fetchTemplates = async () => {
       try {
         const response = await listTemplates();
-        if (response.data?.templates) {
+        console.log('Templates API Response:', response);
+
+        if (response?.data?.templates && Array.isArray(response.data.templates)) {
           const templates = response.data.templates;
+          console.log('Loaded templates:', templates);
           const templateKeys = templates.map((t) => t.templateKey);
           const options = generateTemplateOptions(templateKeys);
           setTemplateOptions(options);
           setTemplatesList(templates);
+        } else {
+          console.warn('Invalid response structure:', response);
+          setTemplateOptions(DEFAULT_TEMPLATE_OPTIONS);
+          setTemplatesList([]);
         }
       } catch (error) {
         console.error('Failed to load templates:', error);

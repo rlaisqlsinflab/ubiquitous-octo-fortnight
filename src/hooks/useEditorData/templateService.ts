@@ -15,7 +15,7 @@ interface TemplateListItem {
 }
 
 interface TemplateListResponse {
-  code: string;
+  statusCode: string;
   message: string;
   data: {
     totalCount: number;
