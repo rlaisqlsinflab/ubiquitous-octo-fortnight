@@ -468,7 +468,7 @@ function App() {
             </div>
 
             <div className="prompt-edit-section">
-              <h3>프롬프트 수정</h3>
+              <h3>프롬프트 수정 {editingTemplate?.templateKey && `[${editingTemplate.templateKey}]`}</h3>
               {isLoadingCurrentTemplate ? (
                 <div style={{ padding: '20px', textAlign: 'center', color: '#999' }}>
                   프롬프트를 불러오는 중...
@@ -539,7 +539,7 @@ function App() {
                   {/* 프롬프트 섹션 */}
                   <div>
                     <h4 style={{ margin: '0 0 12px 0', color: '#1a1a1a', fontSize: '14px', fontWeight: '600' }}>
-                      [{editingTemplate.templateKey}] 프롬프트 ({editingTemplate.prompts?.length || 0}개)
+                      프롬프트 ({editingTemplate.prompts?.length || 0}개)
                     </h4>
                     <div className="prompts-list">
                       {editingTemplate.prompts?.map((prompt: any, index: number) => (
