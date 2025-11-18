@@ -689,25 +689,6 @@ function App() {
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                                       {promptExamples.map((example: string, exIdx: number) => (
                                         <div key={exIdx}>
-                                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                                            <label style={{ fontSize: '11px', color: '#666', fontWeight: '500' }}>
-                                              예제 {exIdx + 1}
-                                            </label>
-                                            <button
-                                              onClick={() => deleteExampleForPrompt(promptIndex, exIdx)}
-                                              style={{
-                                                padding: '3px 6px',
-                                                fontSize: '10px',
-                                                border: '1px solid #ddd',
-                                                backgroundColor: '#f5f5f5',
-                                                borderRadius: '3px',
-                                                cursor: 'pointer',
-                                                color: '#666',
-                                              }}
-                                            >
-                                              삭제
-                                            </button>
-                                          </div>
                                           <textarea
                                             value={example}
                                             onChange={(e) => {
@@ -715,28 +696,12 @@ function App() {
                                               handleAutoResizeTextarea(e);
                                             }}
                                             className="api-input api-textarea auto-resize-textarea"
-                                            rows={2}
+                                            rows={1}
                                             style={{ width: '100%', resize: 'none', overflow: 'hidden', fontSize: '11px' }}
                                           />
                                         </div>
                                       ))}
                                     </div>
-                                    <button
-                                      onClick={() => addExampleForPrompt(promptIndex)}
-                                      style={{
-                                        marginTop: '8px',
-                                        padding: '6px 10px',
-                                        fontSize: '11px',
-                                        border: '1px solid #2563eb',
-                                        backgroundColor: 'white',
-                                        color: '#2563eb',
-                                        borderRadius: '3px',
-                                        cursor: 'pointer',
-                                        fontWeight: '500',
-                                      }}
-                                    >
-                                      + 예제 추가
-                                    </button>
                                   </div>
                                 )}
                               </div>
