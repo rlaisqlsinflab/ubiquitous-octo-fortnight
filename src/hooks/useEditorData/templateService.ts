@@ -133,7 +133,7 @@ export async function deleteTemplate(
   templateKey: string
 ): Promise<TemplateApiResponse<null>> {
   const response = await fetch(
-    `/v1/internal/description/templates/${templateKey}`,
+    `http://localhost:8080/v1/internal/description/templates/${templateKey}`,
     {
       method: 'DELETE',
     }
@@ -152,7 +152,7 @@ export async function deleteTemplate(
  * 모든 템플릿을 최신순(updatedAt 기준)으로 정렬하여 반환
  */
 export async function listTemplates(): Promise<TemplateListResponse> {
-  const response = await fetch('/v1/internal/course/description/templates');
+  const response = await fetch('http://localhost:8080/v1/internal/course/description/templates');
 
   if (!response.ok) {
     throw new Error(`Failed to list templates: ${response.statusText}`);
