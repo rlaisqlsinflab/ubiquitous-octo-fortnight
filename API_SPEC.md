@@ -39,7 +39,7 @@ GET /api/v1/internal/course/description/templates
     "totalCount": 3,
     "templates": [
       {
-        "templateKey": "story",
+        "templateKey": "STORY",
         "exampleCount": 5,
         "promptCount": 4,
         "hasCurriculum": true,
@@ -48,7 +48,7 @@ GET /api/v1/internal/course/description/templates
         "updatedAt": "2024-01-20T15:30:00Z"
       },
       {
-        "templateKey": "problem",
+        "templateKey": "PROBLEM",
         "exampleCount": 4,
         "promptCount": 3,
         "hasCurriculum": true,
@@ -57,7 +57,7 @@ GET /api/v1/internal/course/description/templates
         "updatedAt": "2024-01-18T11:20:00Z"
       },
       {
-        "templateKey": "result",
+        "templateKey": "RESULT",
         "exampleCount": 3,
         "promptCount": 2,
         "hasCurriculum": false,
@@ -89,7 +89,7 @@ GET /api/v1/internal/course/description/templates/{templateKey}
 ```
 
 ### 파라미터
-- `templateKey` (path): 템플릿 키 (예: "story", "problem", "result")
+- `templateKey` (path): 템플릿 키 (예: "STORY", "PROBLEM", "RESULT")
 
 ### 응답
 ```json
@@ -98,7 +98,7 @@ GET /api/v1/internal/course/description/templates/{templateKey}
   "message": "SUCCESS",
   "data": {
     "id": "ObjectId",
-    "templateKey": "story",
+    "templateKey": "STORY",
     "prompts": [
       {
         "id": "group_1",
@@ -141,7 +141,7 @@ GET /api/v1/internal/course/description/templates/{templateKey}/history
   "message": "SUCCESS",
   "data": {
     "id": "ObjectId",
-    "templateKey": "story",
+    "templateKey": "STORY",
     "totalHistory": 3,
     "history": [
       {
@@ -220,7 +220,7 @@ PUT /api/v1/internal/course/description/templates/{templateKey}
   "message": "SUCCESS",
   "data": {
     "id": "ObjectId",
-    "templateKey": "story",
+    "templateKey": "STORY",
     "promptCount": 4,
     "exampleCount": 5,
     "curriculum": {
@@ -401,7 +401,7 @@ POST /api/v1/internal/course/description/templates/auto
 ```json
 {
   "craftJson": "CraftJS JSON 문자열",
-  "templateKey": "story",
+  "templateKey": "STORY",
   "examples": [
     "예제 1",
     "예제 2"
@@ -429,7 +429,7 @@ POST /api/v1/internal/course/description/templates/auto
   "message": "SUCCESS",
   "data": {
     "id": "ObjectId",
-    "templateKey": "story",
+    "templateKey": "STORY",
     "promptCount": 4,
     "exampleCount": 5,
     "curriculum": {
@@ -460,19 +460,19 @@ GET /api/v1/internal/course/description/templates
 
 ### 2. 원하는 템플릿 선택 후 상세 조회
 ```
-GET /api/v1/internal/course/description/templates/story
+GET /api/v1/internal/course/description/templates/STORY
 → 프롬프트, 예제, 커리큘럼 등 전체 정보 반환
 ```
 
 ### 3. 필요시 변경 이력 확인
 ```
-GET /api/v1/internal/course/description/templates/story/history
+GET /api/v1/internal/course/description/templates/STORY/history
 → 모든 이전 버전의 메타데이터 반환
 ```
 
 ### 4. 템플릿 수정 (또는 자동 생성)
 ```
-PUT /api/v1/internal/course/description/templates/story
+PUT /api/v1/internal/course/description/templates/STORY
 POST /api/v1/internal/course/description/templates/auto
 
 Content-Type: application/json
@@ -492,7 +492,8 @@ Content-Type: application/json
 - Timezone: UTC를 사용합니다
 - 응답 시간: 일반적으로 100-500ms 소요
 - Rate Limiting: 분당 100 요청 제한
-- `templateKey`는 영문 소문자로 제한됩니다 (예: story, problem, result)
+- `templateKey`는 영문으로 정의됩니다 (예: STORY, PROBLEM, RESULT, CUSTOM, TEST 등)
+  - 대문자와 소문자 모두 지원됨
 
 ---
 
