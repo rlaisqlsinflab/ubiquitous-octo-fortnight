@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { decompressFromBase64 } from 'lz-string';
 import ViewOnlyFrame from './components/ViewOnlyFrame';
 import './App.css';
-import { listTemplates, getTemplate } from './hooks/useEditorData/templateService';
+import { listTemplates, getTemplate, updateTemplatePrompt } from './hooks/useEditorData/templateService';
 import { generateTemplateOptions, DEFAULT_TEMPLATE_OPTIONS } from './utils/getTemplateOptions';
 
 interface ApiRequestState {
@@ -73,6 +73,9 @@ function App() {
   }>>([]);
   const [currentTemplate, setCurrentTemplate] = useState<any>(null);
   const [isLoadingCurrentTemplate, setIsLoadingCurrentTemplate] = useState(false);
+  const [editingTemplate, setEditingTemplate] = useState<any>(null);
+  const [isUpdatingTemplate, setIsUpdatingTemplate] = useState(false);
+  const [updateError, setUpdateError] = useState<string | null>(null);
 
   // 템플릿 목록 조회
   useEffect(() => {
@@ -117,10 +120,14 @@ function App() {
         console.log('Current template:', response);
         if (response?.data) {
           setCurrentTemplate(response.data);
+          // 편집 상태 초기화
+          setEditingTemplate(JSON.parse(JSON.stringify(response.data)));
+          setUpdateError(null);
         }
       } catch (error) {
         console.error('Failed to load current template:', error);
         setCurrentTemplate(null);
+        setEditingTemplate(null);
       } finally {
         setIsLoadingCurrentTemplate(false);
       }
@@ -268,6 +275,44 @@ function App() {
     }
   };
 
+  const handleSaveTemplate = async () => {
+    if (!editingTemplate || !apiState.templateKey) {
+      showMessage('error', '템플릿을 불러와주세요');
+      return;
+    }
+
+    setIsUpdatingTemplate(true);
+    setUpdateError(null);
+
+    try {
+      const payload = {
+        prompts: editingTemplate.prompts?.map((p: any) => ({
+          id: p.id,
+          description: p.description,
+          content: p.content,
+          textCount: p.textCount,
+        })),
+        curriculum: editingTemplate.curriculum,
+      };
+
+      const response = await updateTemplatePrompt(apiState.templateKey, payload);
+      console.log('Update response:', response);
+
+      // 성공 후 템플릿 다시 조회
+      if (response?.data) {
+        setCurrentTemplate(response.data);
+        setEditingTemplate(JSON.parse(JSON.stringify(response.data)));
+        showMessage('success', '템플릿이 성공적으로 업데이트되었습니다');
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류';
+      setUpdateError(errorMessage);
+      showMessage('error', `저장 실패: ${errorMessage}`);
+    } finally {
+      setIsUpdatingTemplate(false);
+    }
+  };
+
   const handleRenderDirectJson = () => {
     if (!directJsonState.encodedJson.trim()) {
       setDirectJsonState((prev) => ({
@@ -404,24 +449,137 @@ function App() {
                 <div style={{ padding: '20px', textAlign: 'center', color: '#999' }}>
                   프롬프트를 불러오는 중...
                 </div>
-              ) : currentTemplate?.prompts && currentTemplate.prompts.length > 0 ? (
-                <div className="prompts-list">
-                  {currentTemplate.prompts.map((prompt: any, index: number) => (
-                    <div key={prompt.id || index} className="prompt-item">
-                      <div className="prompt-header">
-                        <strong>{prompt.id}</strong>
-                        <span className="prompt-count">({prompt.textCount}개)</span>
+              ) : editingTemplate ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                  {/* 커리큘럼 섹션 */}
+                  {editingTemplate.curriculum && (
+                    <div style={{ borderBottom: '1px solid #e0e0e0', paddingBottom: '16px' }}>
+                      <h4 style={{ margin: '0 0 12px 0', color: '#1a1a1a', fontSize: '14px', fontWeight: '600' }}>
+                        커리큘럼 생성
+                      </h4>
+                      <div style={{ marginBottom: '12px' }}>
+                        <label style={{ display: 'block', fontSize: '12px', color: '#666', marginBottom: '4px', fontWeight: '500' }}>
+                          이름
+                        </label>
+                        <input
+                          type="text"
+                          value={editingTemplate.curriculum.name || ''}
+                          onChange={(e) =>
+                            setEditingTemplate((prev: any) => ({
+                              ...prev,
+                              curriculum: { ...prev.curriculum, name: e.target.value },
+                            }))
+                          }
+                          className="api-input"
+                          style={{ width: '100%' }}
+                        />
                       </div>
-                      <div className="prompt-description">{prompt.description}</div>
-                      <textarea
-                        value={prompt.content}
-                        readOnly
-                        className="api-input api-textarea"
-                        rows={4}
-                        style={{ backgroundColor: '#f5f5f5', cursor: 'default' }}
-                      />
+                      <div style={{ marginBottom: '12px' }}>
+                        <label style={{ display: 'block', fontSize: '12px', color: '#666', marginBottom: '4px', fontWeight: '500' }}>
+                          설명
+                        </label>
+                        <input
+                          type="text"
+                          value={editingTemplate.curriculum.description || ''}
+                          onChange={(e) =>
+                            setEditingTemplate((prev: any) => ({
+                              ...prev,
+                              curriculum: { ...prev.curriculum, description: e.target.value },
+                            }))
+                          }
+                          className="api-input"
+                          style={{ width: '100%' }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '12px', color: '#666', marginBottom: '4px', fontWeight: '500' }}>
+                          프롬프트 내용
+                        </label>
+                        <textarea
+                          value={editingTemplate.curriculum.content || ''}
+                          onChange={(e) =>
+                            setEditingTemplate((prev: any) => ({
+                              ...prev,
+                              curriculum: { ...prev.curriculum, content: e.target.value },
+                            }))
+                          }
+                          className="api-input api-textarea"
+                          rows={6}
+                          style={{ width: '100%' }}
+                        />
+                      </div>
                     </div>
-                  ))}
+                  )}
+
+                  {/* 프롬프트 섹션 */}
+                  <div>
+                    <h4 style={{ margin: '0 0 12px 0', color: '#1a1a1a', fontSize: '14px', fontWeight: '600' }}>
+                      프롬프트 ({editingTemplate.prompts?.length || 0}개)
+                    </h4>
+                    <div className="prompts-list">
+                      {editingTemplate.prompts?.map((prompt: any, index: number) => (
+                        <div key={prompt.id || index} className="prompt-item">
+                          <div className="prompt-header">
+                            <strong>{prompt.id}</strong>
+                            <span className="prompt-count">({prompt.textCount}개)</span>
+                          </div>
+                          <div style={{ marginBottom: '12px' }}>
+                            <label style={{ display: 'block', fontSize: '12px', color: '#666', marginBottom: '4px', fontWeight: '500' }}>
+                              설명
+                            </label>
+                            <input
+                              type="text"
+                              value={prompt.description || ''}
+                              onChange={(e) => {
+                                const updatedPrompts = [...editingTemplate.prompts];
+                                updatedPrompts[index].description = e.target.value;
+                                setEditingTemplate((prev: any) => ({
+                                  ...prev,
+                                  prompts: updatedPrompts,
+                                }));
+                              }}
+                              className="api-input"
+                              style={{ width: '100%' }}
+                            />
+                          </div>
+                          <label style={{ display: 'block', fontSize: '12px', color: '#666', marginBottom: '4px', fontWeight: '500' }}>
+                            프롬프트 내용
+                          </label>
+                          <textarea
+                            value={prompt.content || ''}
+                            onChange={(e) => {
+                              const updatedPrompts = [...editingTemplate.prompts];
+                              updatedPrompts[index].content = e.target.value;
+                              setEditingTemplate((prev: any) => ({
+                                ...prev,
+                                prompts: updatedPrompts,
+                              }));
+                            }}
+                            className="api-input api-textarea"
+                            rows={6}
+                            style={{ width: '100%' }}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* 에러 메시지 */}
+                  {updateError && (
+                    <div className="error-message">
+                      <strong>Error:</strong> {updateError}
+                    </div>
+                  )}
+
+                  {/* 저장 버튼 */}
+                  <button
+                    onClick={handleSaveTemplate}
+                    disabled={isUpdatingTemplate}
+                    className="btn btn-primary"
+                    style={{ width: '100%' }}
+                  >
+                    {isUpdatingTemplate ? '저장 중...' : '저장'}
+                  </button>
                 </div>
               ) : (
                 <div style={{ padding: '20px', textAlign: 'center', color: '#999' }}>

@@ -106,6 +106,7 @@
   border-radius: 4px;
   font-size: 12px;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  box-sizing: border-box;
 }
 
 .api-input:focus {
@@ -125,6 +126,8 @@ select.api-input {
   font-size: 11px;
   line-height: 1.4;
   padding: 8px 12px;
+  box-sizing: border-box;
+  width: 100%;
 }
 
 .input-panel h2,
@@ -382,6 +385,9 @@ select.api-input {
   background-color: white;
   border: 1px solid #e5e7eb;
   border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .prompt-header {
