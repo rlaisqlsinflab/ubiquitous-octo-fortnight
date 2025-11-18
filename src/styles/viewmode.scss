@@ -1,0 +1,19 @@
+// 텍스트에서 코드 블럭에서 언어 선택기로 인해 생겨버린 패딩을 제거하는 스타일입니다.
+.text-view-mode .markdown-body pre code {
+  padding-top: 1rem;
+}
+
+// 이미지 텍스트 placeholder를 제거하는 스타일입니다.
+.image-text__placeholder.image-text__placeholder--viewmode {
+  display: flex;
+}
+
+// 비디오 텍스트의 placeholder를 제거하는 스타일입니다.
+.video-text__placeholder.video-text__placeholder--viewmode {
+  display: flex;
+}
+
+// 액션메뉴의 border를 제거하는 스타일입니다.
+.action-menu-wrapper.action-menu-wrapper--view-mode {
+  border: none;
+}

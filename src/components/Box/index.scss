@@ -1,0 +1,25 @@
+@import '../../styles/colors.scss';
+
+.box__children-wrapper {
+  height: 100%;
+}
+
+.box__add-element-button {
+  display: block;
+  margin: auto;
+}
+
+.box__add-element-button-menu-item-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.box-add-element-button-menu-item-icon {
+  margin-right: 10px;
+}
+
+.box-add-element__text-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

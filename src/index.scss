@@ -1,0 +1,19 @@
+@import './styles/z-index';
+@import './components/ActionMenu/index';
+@import './components/LeftActionMenu/index';
+@import './components/Box/index';
+@import './components/Grid/index';
+@import './components/ImageText/Dropzone/dropzoneArea';
+@import './components/ImageText/Dropzone/dropzonePreview';
+@import './components/ImageText/index';
+@import './components/InfoBox/index';
+@import './components/Margin/index';
+@import './components/Separator/index';
+@import './components/Text/index';
+@import './components/VideoText/index';
+
+// Override h2 styling in markdown-body
+.markdown-body h2 {
+  font-size: 26px !important;
+  line-height: 1.35;
+}

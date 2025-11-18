@@ -1,0 +1,29 @@
+.grid-wrapper {
+  .editor-container {
+    border: none !important;
+    border-radius: 0 !important;
+  }
+  
+  .editor-content-container {
+    padding: 0 !important;
+    border-radius: 0;
+  }
+  
+  .focus-menu--sticky {
+    z-index: 201;
+  }
+  
+  // 좌우 패딩이 없는 에디터 내에서 outline 표시를 위해 추가
+  .resizable-media-node-view {
+    margin-left: 2px;
+    margin-right: 2px;
+  }
+  
+  .markdown-body ol ol ol ol ol ol ol {
+    padding: 0;
+  }
+  
+  .markdown-body ul ul ul ul ul ul ul {
+    padding: 0;
+  }
+}

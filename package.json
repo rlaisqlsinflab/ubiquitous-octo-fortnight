@@ -1,0 +1,53 @@
+{
+  "name": "contents-builder-preview",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@craftjs/core": "0.2.0-beta.12",
+    "@inflearn/ds-markdown-body": "1.4.0",
+    "@inflearn/i18n-tools": "^2.0.3",
+    "dayjs": "^1.11.7",
+    "i18next": "^25.6.2",
+    "jsonschema": "^1.4.1",
+    "lodash-es": "^4.17.21",
+    "lz-string": "^1.5.0",
+    "query-string": "^8.1.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-i18next": "^16.3.3",
+    "sanitize-html": "^2.14.0"
+  },
+  "devDependencies": {
+    "@emotion/react": "^11.13.3",
+    "@fortawesome/react-fontawesome": "^0.2.0",
+    "@inflearn/ds-react": "3.11.0",
+    "@inflearn/editor": "7.5.7",
+    "@inflearn/fontawesome-svg-core": "^6.4.2",
+    "@inflearn/free-brands-svg-icons": "^6.4.2",
+    "@inflearn/pro-duotone-svg-icons": "^6.4.2",
+    "@inflearn/pro-light-svg-icons": "^6.4.2",
+    "@inflearn/pro-regular-svg-icons": "^6.4.2",
+    "@inflearn/pro-solid-svg-icons": "^6.4.2",
+    "@inflearn/pro-thin-svg-icons": "^6.4.2",
+    "@mantine/core": "~6.0",
+    "@mantine/dropzone": "~6.0",
+    "@mantine/hooks": "~6.0",
+    "@tanstack/react-query": "~4",
+    "@types/jest": "^30.0.0",
+    "@types/lodash-es": "^4.17.6",
+    "@types/node": "^24.10.1",
+    "@types/react": "^18.0.37",
+    "@types/react-dom": "^18.2.6",
+    "@types/sanitize-html": "^2.13.0",
+    "@vitejs/plugin-react": "^4.0.3",
+    "sass": "^1.94.0",
+    "typescript": "5.0.2",
+    "vite": "^4.4.7"
+  }
+}

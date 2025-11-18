@@ -1,0 +1,67 @@
+@import '../../styles/colors.scss';
+
+$action-menu-height: 38px;
+
+.action-menu-wrapper {
+  position: relative;
+  border: 1px solid transparent;
+  height: fit-content;
+}
+.action-menu-wrapper.action-menu-wrapper--view-mode {
+  border: none;
+}
+.action-menu-wrapper-for-border {
+  position: relative;
+  border: 1px solid transparent;
+}
+
+.action-menu-wrapper--root {
+  padding: 8px 0;
+}
+
+#builder-root .action-menu-wrapper--root {
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+.action-menu-wrapper--root > .action-menu {
+  top: calc(100% - $action-menu-height / 2);
+  left: 50%;
+  transform: translateX(-50%);
+  margin-left: -16px;
+}
+
+.action-menu {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  display: none;
+  padding-top: 8px;
+  justify-content: center;
+  z-index: $z-index-action-menu;
+
+  &:hover {
+    display: flex;
+  }
+}
+.action-menu--hover {
+  display: flex;
+}
+.action-menu__box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  height: 38px;
+  background: #fff;
+  border: 1px solid $gray-2;
+  border-radius: 8px;
+  box-shadow: 0px 7px 7px -5px #0000000a;
+  box-shadow: 0px 10px 15px -5px #0000000d;
+  box-shadow: 0px 1px 3px 0px #0000000d;
+
+  & > * + * {
+    margin-left: 4px;
+  }
+}

@@ -1,0 +1,161 @@
+@import '../../styles/colors.scss';
+
+// Define the base grid style
+@mixin defaultGrid {
+  display: grid;
+  column-gap: 16px;
+  row-gap: 16px;
+  // NOTE: https://inflab.atlassian.net/wiki/spaces/~613026876e5e1e0071d7c9df/pages/1142948181/Placeholder+width
+  > * {
+    min-width: 0;
+  }
+  > .box__children-wrapper {
+    height: fit-content;
+  }
+}
+
+.one-column-grid {
+  @include defaultGrid;
+
+  grid-template-columns: 1fr;
+}
+
+.two-column-grid {
+  @include defaultGrid;
+
+  grid-template-columns: 1fr 1fr;
+
+  &--2to1 {
+    grid-template-columns: 2fr 1fr;
+  }
+
+  &--1to2 {
+    grid-template-columns: 1fr 2fr;
+  }
+}
+
+.three-column-grid {
+  @include defaultGrid;
+
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+/* ActionButtons */
+.add-block-wrapper {
+  position: relative;
+}
+.add-block__options {
+  position: absolute;
+  top: calc(100% + 8px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.action-button-add-block {
+  display: flex;
+  flex-direction: column;
+  height: fit-content;
+}
+
+.action-button-add-block
+  .mantine-Menu-dropdown[data-position='top']
+  ~ .action-button-add-block-tinker {
+  top: -38px;
+}
+
+.action-button-add-block .mantine-Menu-dropdown[data-position='bottom'] {
+  top: 0;
+}
+
+.action-button-add-block-tinker {
+  position: relative;
+  width: 100%;
+  height: 8px;
+}
+
+.action-button-add-block__menu-target {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 6px;
+  height: 28px;
+  font-size: 14px;
+  color: $dark-9;
+}
+.action-button-add-block__menu-target--clicked {
+  background: $dark-0 !important;
+}
+
+.action-button-arrow {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 28px;
+  font-size: 16px;
+  color: $dark-9;
+}
+.action-button-arrow--down {
+  transform: rotate(180deg);
+}
+.action-button-trash-can {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 28px;
+  font-size: 16px;
+  color: $red-6;
+}
+
+.action-button-arrow,
+.action-button-arrow--down,
+.action-button-trash-can {
+  &:disabled {
+    color: $gray-5;
+    cursor: default;
+
+    &:hover {
+      background: none;
+    }
+  }
+}
+
+$mobile-breakpoint: 768px;
+$tablet-breakpoint: 1024px;
+
+@media (max-width: $mobile-breakpoint) {
+  .two-column-grid {
+    grid-auto-flow: row !important;
+    grid-template-columns: 100% !important;
+  }
+  
+  .three-column-grid {
+    grid-auto-flow: row !important;
+    grid-template-columns: 100% !important;
+  }
+  
+  .one-column-grid {
+    grid-auto-flow: row !important;
+    grid-template-columns: 100% !important;
+  }
+  
+  .two-column-grid--2to1 {
+    > :first-child {
+      order: 2;
+    }
+  
+    > :last-child {
+      order: 1;
+    }
+  }
+  
+  .two-column-grid--1to2 {
+    > :first-child {
+      order: 1;
+    }
+  
+    > :last-child {
+      order: 2;
+    }
+  }
+}

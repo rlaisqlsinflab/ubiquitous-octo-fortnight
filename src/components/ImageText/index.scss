@@ -1,0 +1,19 @@
+@use 'sass:map';
+
+.image-text__container {
+  display: flex;
+  flex-direction: column;
+}
+
+.image-text__placeholder {
+  display: none;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 139px;
+  background-color: $gray-1;
+}
+
+.dropzone__wrapper {
+  margin-bottom: 8px;
+}

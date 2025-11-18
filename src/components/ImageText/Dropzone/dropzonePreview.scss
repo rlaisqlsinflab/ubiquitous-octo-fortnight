@@ -1,0 +1,21 @@
+.dropzone-preview__figure {
+  position: relative;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  min-height: 40px;
+}
+
+.dropzone-preview__uploaded-content {
+  max-width: 100%;
+  min-width: 40px;
+}
+
+.dropzone-preview__uploaded-content--loading {
+  opacity: 0;
+  display: none;
+}
+
+.dropzone-preview__uploaded-anchor {
+  line-height: 0;
+}

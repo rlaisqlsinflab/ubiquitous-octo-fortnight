@@ -1,0 +1,60 @@
+@import '../../../styles/colors.scss';
+
+.dropzone-area__root {
+  padding: 16px;
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #ffffff;
+  border: 2px dashed #ced4da;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: #f8f9fa;
+  }
+
+  &--error {
+    background-color: #fff5f5;
+    border-color: #ff8787;
+
+    &:hover {
+      background-color: #ffe3e3;
+    }
+  }
+
+  .mantine-LoadingOverlay-root {
+    z-index: $z-index-image-dropzone-loading-cover !important;
+  }
+}
+
+.dropzone-area__content {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.dropzone-area__tip {
+  margin: 0;
+  color: $gray-7;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.dropzone-area__rule {
+  margin: 0;
+  color: $gray-6;
+  font-size: 12px;
+  text-align: center;
+}
+
+.dropzone-area__tip--reject {
+  color: $red-7;
+}
+
+.dropzone-area__rule--reject {
+  color: $red-5;
+}

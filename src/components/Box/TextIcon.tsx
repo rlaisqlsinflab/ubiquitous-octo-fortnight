@@ -1,0 +1,10 @@
+export const TextIcon = () => (
+  <div className="box-add-element__text-icon">
+    <svg width="16" height="14" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path
+        d="M8 14V4H18V14H8ZM10 12H16V6H10V12ZM0 18V16H18V18H0ZM0 14V12H6V14H0ZM0 10V8H6V10H0ZM0 6V4H6V6H0ZM0 2V0H18V2H0Z"
+        fill="black"
+      />
+    </svg>
+  </div>
+);
