@@ -298,10 +298,18 @@ function App() {
       const response = await updateTemplatePrompt(apiState.templateKey, payload);
       console.log('Update response:', response);
 
-      // 성공 후 템플릿 다시 조회
+      // 성공 후 템플릿 다시 조회 (전체 데이터 포함)
       if (response?.data) {
-        setCurrentTemplate(response.data);
-        setEditingTemplate(JSON.parse(JSON.stringify(response.data)));
+        try {
+          const freshResponse = await getTemplate(apiState.templateKey);
+          if (freshResponse?.data) {
+            setCurrentTemplate(freshResponse.data);
+            setEditingTemplate(JSON.parse(JSON.stringify(freshResponse.data)));
+          }
+        } catch (refreshError) {
+          console.error('Failed to refresh template:', refreshError);
+          // 재조회 실패해도 editingTemplate은 유지
+        }
         showMessage('success', '템플릿이 성공적으로 업데이트되었습니다');
       }
     } catch (error) {
