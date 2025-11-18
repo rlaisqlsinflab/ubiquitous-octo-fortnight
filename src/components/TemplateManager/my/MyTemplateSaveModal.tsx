@@ -16,7 +16,9 @@ type MyTemplateSaveModalProps = {
   opened: boolean;
   close: () => void;
   onSubmit: (title: string, onSuccess: () => void) => Promise<void>;
+  onSubmitWithContent?: (title: string, onSuccess: () => void) => Promise<void>;
   initialValue?: string;
+  showContentOption?: boolean;
 };
 
 export function MyTemplateSaveModal({
@@ -24,7 +26,9 @@ export function MyTemplateSaveModal({
   opened,
   close,
   onSubmit,
+  onSubmitWithContent,
   initialValue = '',
+  showContentOption = false,
 }: MyTemplateSaveModalProps) {
   const { onClickCreateMyTemplateButton } = useContext(TemplateMarketingCallbackContext);
 
@@ -87,13 +91,27 @@ export function MyTemplateSaveModal({
               <Button onClick={onClose} color="infgreen" variant="default" size="md">
                 취소
               </Button>
+              {showContentOption && onSubmitWithContent && mode === MY_TEMPLATE_MODAL_MODE.update && (
+                <Button
+                  onClick={async () => {
+                    await onSubmitWithContent(templateTitle, () => {
+                      setTemplateTitle('');
+                    });
+                  }}
+                  color="infgreen"
+                  variant="default"
+                  size="md"
+                  disabled={templateTitle.trim().length === 0}>
+                  내용 포함 저장
+                </Button>
+              )}
               <Button
                 type="submit"
                 color="infgreen"
                 variant="filled"
                 size="md"
                 disabled={templateTitle.trim().length === 0}>
-                저장
+                {showContentOption && mode === MY_TEMPLATE_MODAL_MODE.update ? '제목만 저장' : '저장'}
               </Button>
             </Group>
           </form>

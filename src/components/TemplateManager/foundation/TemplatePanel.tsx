@@ -83,6 +83,7 @@ export const TemplatePanel = ({
   createTemplate,
   updateTemplate,
   deleteTemplate,
+  updateTemplateContent,
   // optional event callbacks
   onTemplateManagerOpened,
   onClickCreateMyTemplateButton,
@@ -185,6 +186,7 @@ export const TemplatePanel = ({
           createTemplate,
           updateTemplate,
           deleteTemplate,
+          updateTemplateContent,
         }}>
         <TemplateMarketingCallbackContext.Provider
           value={{

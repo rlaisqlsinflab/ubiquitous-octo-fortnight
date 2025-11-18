@@ -12,7 +12,7 @@ import {
 import { faEdit, faTrash } from '@inflearn/pro-regular-svg-icons';
 import { useDisclosure } from '@mantine/hooks';
 import dayjs from 'dayjs';
-import { decompressFromBase64 } from 'lz-string';
+import { compressToBase64, decompressFromBase64 } from 'lz-string';
 import { useContext } from 'react';
 
 import { DeleteMyTemplateModal } from './DeleteMyTemplateModal';
@@ -20,6 +20,7 @@ import { MyTemplateButton } from './MyTemplateButton';
 import { MyTemplateSaveModal } from './MyTemplateSaveModal';
 import { MyTemplateApiContext } from '../context/MyTemplateApiContext';
 import type { CheckIsEmptyTemplateContent, Template } from '../types';
+import { useEditorData } from '../../../hooks/useEditorData/useEditorData';
 
 type Props = {
   topGap: number;
@@ -28,7 +29,8 @@ type Props = {
 };
 
 export function MyTemplateButtonWrapper({ topGap, template, checkIsEmptyTemplateContent }: Props) {
-  const { updateTemplate, deleteTemplate } = useContext(MyTemplateApiContext);
+  const { updateTemplate, deleteTemplate, updateTemplateContent } = useContext(MyTemplateApiContext);
+  const { generateJson, generateHTML } = useEditorData();
   const [deleteModalOpened, deleteModalHandler] = useDisclosure(false);
   const [editModalOpened, editModalHandler] = useDisclosure(false);
   const { showNotification } = useShowNotification();
@@ -102,6 +104,61 @@ export function MyTemplateButtonWrapper({ topGap, template, checkIsEmptyTemplate
     }
   };
 
+  const handleUpdateTemplateWithContent = async (
+    title: string,
+    onSuccess: () => void,
+    includeContent: boolean = false
+  ) => {
+    try {
+      if (includeContent && updateTemplateContent) {
+        const jsonBody = generateJson();
+        const htmlBody = await generateHTML();
+
+        // lz-string으로 jsonBody 인코딩
+        const compressedJsonBody = compressToBase64(jsonBody);
+
+        await updateTemplateContent(
+          template.id,
+          title,
+          compressedJsonBody,
+          htmlBody
+        );
+
+        showNotification({
+          title: '템플릿 내용이 수정되었습니다.',
+          type: 'success',
+        });
+      } else {
+        await handleUpdateMyTemplate(title, onSuccess);
+      }
+      onSuccess();
+    } catch (error) {
+      if (!(error instanceof ApiError)) {
+        return;
+      }
+
+      if (error.isBadRequest) {
+        showNotification({
+          title: '템플릿 정보를 입력해주세요.',
+          type: 'error',
+        });
+        return;
+      }
+
+      if (error.isNotFound) {
+        showNotification({
+          title: '템플릿을 찾을 수 없습니다.',
+          type: 'error',
+        });
+        return;
+      }
+
+      throw error;
+    } finally {
+      editModalHandler.close();
+    }
+  };
+
   return (
     <Flex
       component="li"
@@ -163,7 +220,11 @@ export function MyTemplateButtonWrapper({ topGap, template, checkIsEmptyTemplate
           opened={editModalOpened}
           close={editModalHandler.close}
           onSubmit={handleUpdateMyTemplate}
+          onSubmitWithContent={(title, onSuccess) =>
+            handleUpdateTemplateWithContent(title, onSuccess, true)
+          }
           initialValue={template.title}
+          showContentOption={true}
         />
         <ActionIcon
           variant="subtle"
