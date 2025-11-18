@@ -76,6 +76,7 @@ function App() {
   const [editingTemplate, setEditingTemplate] = useState<any>(null);
   const [isUpdatingTemplate, setIsUpdatingTemplate] = useState(false);
   const [updateError, setUpdateError] = useState<string | null>(null);
+  const [expandedPrompts, setExpandedPrompts] = useState<{ [key: string]: boolean }>({});
 
   // 템플릿 목록 조회
   useEffect(() => {
@@ -289,6 +290,60 @@ function App() {
   const handleAutoResizeTextarea = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     e.target.style.height = 'auto';
     e.target.style.height = e.target.scrollHeight + 'px';
+  };
+
+  const getExamplesForPrompt = (promptIndex: number) => {
+    if (!editingTemplate?.prompts || !editingTemplate?.examples) return [];
+
+    const promptsBefore = editingTemplate.prompts.slice(0, promptIndex);
+    const startIndex = promptsBefore.reduce((sum: number, p: any) => sum + (p.textCount || 0), 0);
+    const endIndex = startIndex + (editingTemplate.prompts[promptIndex]?.textCount || 0);
+
+    return editingTemplate.examples.slice(startIndex, endIndex);
+  };
+
+  const updateExampleForPrompt = (promptIndex: number, exampleIndex: number, newValue: string) => {
+    if (!editingTemplate?.prompts || !editingTemplate?.examples) return;
+
+    const promptsBefore = editingTemplate.prompts.slice(0, promptIndex);
+    const startIndex = promptsBefore.reduce((sum: number, p: any) => sum + (p.textCount || 0), 0);
+    const actualIndex = startIndex + exampleIndex;
+
+    const updatedExamples = [...editingTemplate.examples];
+    updatedExamples[actualIndex] = newValue;
+
+    setEditingTemplate((prev: any) => ({
+      ...prev,
+      examples: updatedExamples,
+    }));
+  };
+
+  const deleteExampleForPrompt = (promptIndex: number, exampleIndex: number) => {
+    if (!editingTemplate?.prompts || !editingTemplate?.examples) return;
+
+    const promptsBefore = editingTemplate.prompts.slice(0, promptIndex);
+    const startIndex = promptsBefore.reduce((sum: number, p: any) => sum + (p.textCount || 0), 0);
+    const actualIndex = startIndex + exampleIndex;
+
+    setEditingTemplate((prev: any) => ({
+      ...prev,
+      examples: prev.examples.filter((_: string, i: number) => i !== actualIndex),
+    }));
+  };
+
+  const addExampleForPrompt = (promptIndex: number) => {
+    if (!editingTemplate?.prompts) return;
+
+    const promptsBefore = editingTemplate.prompts.slice(0, promptIndex + 1);
+    const insertIndex = promptsBefore.reduce((sum: number, p: any) => sum + (p.textCount || 0), 0);
+
+    const updatedExamples = [...editingTemplate.examples];
+    updatedExamples.splice(insertIndex, 0, '');
+
+    setEditingTemplate((prev: any) => ({
+      ...prev,
+      examples: updatedExamples,
+    }));
   };
 
   const handleSaveTemplate = async () => {
@@ -537,132 +592,158 @@ function App() {
                     </div>
                   )}
 
-                  {/* 예제 섹션 */}
-                  {editingTemplate.examples && editingTemplate.examples.length > 0 && (
-                    <div style={{ borderBottom: '1px solid #e0e0e0', paddingBottom: '16px' }}>
-                      <h4 style={{ margin: '0 0 12px 0', color: '#1a1a1a', fontSize: '14px', fontWeight: '600' }}>
-                        예제 ({editingTemplate.examples.length}개)
-                      </h4>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                        {editingTemplate.examples.map((example: string, index: number) => (
-                          <div key={index}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                              <label style={{ display: 'block', fontSize: '12px', color: '#666', fontWeight: '500' }}>
-                                예제 {index + 1}
-                              </label>
-                              <button
-                                onClick={() => {
-                                  setEditingTemplate((prev: any) => ({
-                                    ...prev,
-                                    examples: prev.examples.filter((_: string, i: number) => i !== index),
-                                  }));
-                                }}
-                                style={{
-                                  padding: '4px 8px',
-                                  fontSize: '11px',
-                                  border: '1px solid #ddd',
-                                  backgroundColor: '#f5f5f5',
-                                  borderRadius: '4px',
-                                  cursor: 'pointer',
-                                  color: '#666',
-                                }}
-                              >
-                                삭제
-                              </button>
-                            </div>
-                            <textarea
-                              value={example}
-                              onChange={(e) => {
-                                const updatedExamples = [...editingTemplate.examples];
-                                updatedExamples[index] = e.target.value;
-                                setEditingTemplate((prev: any) => ({
-                                  ...prev,
-                                  examples: updatedExamples,
-                                }));
-                                handleAutoResizeTextarea(e);
-                              }}
-                              className="api-input api-textarea auto-resize-textarea"
-                              rows={3}
-                              style={{ width: '100%', resize: 'none', overflow: 'hidden' }}
-                            />
-                          </div>
-                        ))}
-                      </div>
-                      <button
-                        onClick={() => {
-                          setEditingTemplate((prev: any) => ({
-                            ...prev,
-                            examples: [...(prev.examples || []), ''],
-                          }));
-                        }}
-                        style={{
-                          marginTop: '12px',
-                          padding: '8px 12px',
-                          fontSize: '12px',
-                          border: '1px solid #2563eb',
-                          backgroundColor: 'white',
-                          color: '#2563eb',
-                          borderRadius: '4px',
-                          cursor: 'pointer',
-                          fontWeight: '500',
-                        }}
-                      >
-                        + 예제 추가
-                      </button>
-                    </div>
-                  )}
-
                   {/* 프롬프트 섹션 */}
                   <div>
                     <h4 style={{ margin: '0 0 12px 0', color: '#1a1a1a', fontSize: '14px', fontWeight: '600' }}>
                       프롬프트 ({editingTemplate.prompts?.length || 0}개)
                     </h4>
                     <div className="prompts-list">
-                      {editingTemplate.prompts?.map((prompt: any, index: number) => (
-                        <div key={prompt.id || index} className="prompt-item">
-                          <div className="prompt-header">
-                            <strong>{prompt.id}</strong>
-                            <span className="prompt-count">({prompt.textCount}개)</span>
-                          </div>
-                          <div style={{ marginBottom: '12px' }}>
-                            <label style={{ display: 'block', fontSize: '12px', color: '#666', marginBottom: '4px', fontWeight: '500' }}>
-                              설명
-                            </label>
-                            <input
-                              type="text"
-                              value={prompt.description || ''}
-                              onChange={(e) => {
-                                const updatedPrompts = [...editingTemplate.prompts];
-                                updatedPrompts[index].description = e.target.value;
-                                setEditingTemplate((prev: any) => ({
+                      {editingTemplate.prompts?.map((prompt: any, promptIndex: number) => {
+                        const isExpanded = expandedPrompts[prompt.id] ?? false;
+                        const promptExamples = getExamplesForPrompt(promptIndex);
+
+                        return (
+                          <div key={prompt.id || promptIndex} className="prompt-item">
+                            {/* 헤더 - 클릭 가능 */}
+                            <div
+                              onClick={() =>
+                                setExpandedPrompts((prev) => ({
                                   ...prev,
-                                  prompts: updatedPrompts,
-                                }));
+                                  [prompt.id]: !prev[prompt.id],
+                                }))
+                              }
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                                cursor: 'pointer',
+                                padding: '8px',
+                                marginBottom: isExpanded ? '12px' : '0',
+                                backgroundColor: isExpanded ? '#f0f0f0' : 'transparent',
+                                borderRadius: '4px',
                               }}
-                              className="api-input"
-                              style={{ width: '100%' }}
-                            />
+                            >
+                              <span style={{ fontSize: '14px', color: '#666' }}>
+                                {isExpanded ? '▼' : '▶'}
+                              </span>
+                              <div className="prompt-header" style={{ margin: 0, flex: 1 }}>
+                                <strong>{prompt.id}</strong>
+                                <span className="prompt-count">
+                                  ({prompt.textCount}개 예제)
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* 펼쳐진 내용 */}
+                            {isExpanded && (
+                              <div style={{ paddingLeft: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                {/* 설명 */}
+                                <div style={{ marginBottom: '12px' }}>
+                                  <label style={{ display: 'block', fontSize: '12px', color: '#666', marginBottom: '4px', fontWeight: '500' }}>
+                                    설명
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={prompt.description || ''}
+                                    onChange={(e) => {
+                                      const updatedPrompts = [...editingTemplate.prompts];
+                                      updatedPrompts[promptIndex].description = e.target.value;
+                                      setEditingTemplate((prev: any) => ({
+                                        ...prev,
+                                        prompts: updatedPrompts,
+                                      }));
+                                    }}
+                                    className="api-input"
+                                    style={{ width: '100%' }}
+                                  />
+                                </div>
+
+                                {/* 프롬프트 내용 */}
+                                <div>
+                                  <label style={{ display: 'block', fontSize: '12px', color: '#666', marginBottom: '4px', fontWeight: '500' }}>
+                                    프롬프트 내용
+                                  </label>
+                                  <textarea
+                                    value={prompt.content || ''}
+                                    onChange={(e) => {
+                                      const updatedPrompts = [...editingTemplate.prompts];
+                                      updatedPrompts[promptIndex].content = e.target.value;
+                                      setEditingTemplate((prev: any) => ({
+                                        ...prev,
+                                        prompts: updatedPrompts,
+                                      }));
+                                      handleAutoResizeTextarea(e);
+                                    }}
+                                    className="api-input api-textarea auto-resize-textarea"
+                                    rows={4}
+                                    style={{ width: '100%', resize: 'none', overflow: 'hidden' }}
+                                  />
+                                </div>
+
+                                {/* 예제들 */}
+                                {promptExamples.length > 0 && (
+                                  <div style={{ borderTop: '1px solid #e0e0e0', paddingTop: '12px' }}>
+                                    <h5 style={{ margin: '0 0 12px 0', color: '#1a1a1a', fontSize: '12px', fontWeight: '600' }}>
+                                      예제 ({promptExamples.length}개)
+                                    </h5>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                      {promptExamples.map((example: string, exIdx: number) => (
+                                        <div key={exIdx}>
+                                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                                            <label style={{ fontSize: '11px', color: '#666', fontWeight: '500' }}>
+                                              예제 {exIdx + 1}
+                                            </label>
+                                            <button
+                                              onClick={() => deleteExampleForPrompt(promptIndex, exIdx)}
+                                              style={{
+                                                padding: '3px 6px',
+                                                fontSize: '10px',
+                                                border: '1px solid #ddd',
+                                                backgroundColor: '#f5f5f5',
+                                                borderRadius: '3px',
+                                                cursor: 'pointer',
+                                                color: '#666',
+                                              }}
+                                            >
+                                              삭제
+                                            </button>
+                                          </div>
+                                          <textarea
+                                            value={example}
+                                            onChange={(e) => {
+                                              updateExampleForPrompt(promptIndex, exIdx, e.target.value);
+                                              handleAutoResizeTextarea(e);
+                                            }}
+                                            className="api-input api-textarea auto-resize-textarea"
+                                            rows={2}
+                                            style={{ width: '100%', resize: 'none', overflow: 'hidden', fontSize: '11px' }}
+                                          />
+                                        </div>
+                                      ))}
+                                    </div>
+                                    <button
+                                      onClick={() => addExampleForPrompt(promptIndex)}
+                                      style={{
+                                        marginTop: '8px',
+                                        padding: '6px 10px',
+                                        fontSize: '11px',
+                                        border: '1px solid #2563eb',
+                                        backgroundColor: 'white',
+                                        color: '#2563eb',
+                                        borderRadius: '3px',
+                                        cursor: 'pointer',
+                                        fontWeight: '500',
+                                      }}
+                                    >
+                                      + 예제 추가
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            )}
                           </div>
-                          <label style={{ display: 'block', fontSize: '12px', color: '#666', marginBottom: '4px', fontWeight: '500' }}>
-                            프롬프트 내용
-                          </label>
-                          <textarea
-                            value={prompt.content || ''}
-                            onChange={(e) => {
-                              const updatedPrompts = [...editingTemplate.prompts];
-                              updatedPrompts[index].content = e.target.value;
-                              setEditingTemplate((prev: any) => ({
-                                ...prev,
-                                prompts: updatedPrompts,
-                              }));
-                              handleAutoResizeTextarea(e);
-                            }}
-                            className="api-input api-textarea auto-resize-textarea"
-                            rows={4}
-                            style={{ width: '100%', resize: 'none', overflow: 'hidden' }}
-                          />
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
 
