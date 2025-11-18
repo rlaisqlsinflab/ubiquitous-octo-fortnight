@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { decompressFromBase64 } from 'lz-string';
 import ViewOnlyFrame from './components/ViewOnlyFrame';
 import './App.css';
-import { listTemplates } from './hooks/useEditorData/templateService';
+import { listTemplates, getTemplate } from './hooks/useEditorData/templateService';
 import { generateTemplateOptions, DEFAULT_TEMPLATE_OPTIONS } from './utils/getTemplateOptions';
 
 interface ApiRequestState {
@@ -71,6 +71,8 @@ function App() {
     createdAt: string;
     updatedAt: string;
   }>>([]);
+  const [currentTemplate, setCurrentTemplate] = useState<any>(null);
+  const [isLoadingCurrentTemplate, setIsLoadingCurrentTemplate] = useState(false);
 
   // 템플릿 목록 조회
   useEffect(() => {
@@ -103,6 +105,29 @@ function App() {
 
     fetchTemplates();
   }, []);
+
+  // 선택된 템플릿 상세 정보 조회
+  useEffect(() => {
+    const fetchCurrentTemplate = async () => {
+      if (!apiState.templateKey) return;
+
+      setIsLoadingCurrentTemplate(true);
+      try {
+        const response = await getTemplate(apiState.templateKey);
+        console.log('Current template:', response);
+        if (response?.data) {
+          setCurrentTemplate(response.data);
+        }
+      } catch (error) {
+        console.error('Failed to load current template:', error);
+        setCurrentTemplate(null);
+      } finally {
+        setIsLoadingCurrentTemplate(false);
+      }
+    };
+
+    fetchCurrentTemplate();
+  }, [apiState.templateKey]);
 
   // API 로딩 중 경과 시간 업데이트
   useEffect(() => {
@@ -373,31 +398,36 @@ function App() {
               </button>
             </div>
 
-            <div className="direct-json-section">
-              <h3>직접 JSON 입력</h3>
-              <div className="direct-json-input-group">
-                <textarea
-                  value={directJsonState.encodedJson}
-                  onChange={(e) => setDirectJsonState((prev) => ({ ...prev, encodedJson: e.target.value, error: null }))}
-                  placeholder="Base64 encoded JSON 또는 일반 JSON을 여기에 붙여넣으세요"
-                  className="api-input api-textarea"
-                  rows={6}
-                />
-              </div>
-
-              {directJsonState.error && (
-                <div className="error-message">
-                  <strong>Error:</strong> {directJsonState.error}
+            <div className="prompt-edit-section">
+              <h3>프롬프트 수정</h3>
+              {isLoadingCurrentTemplate ? (
+                <div style={{ padding: '20px', textAlign: 'center', color: '#999' }}>
+                  프롬프트를 불러오는 중...
+                </div>
+              ) : currentTemplate?.prompts && currentTemplate.prompts.length > 0 ? (
+                <div className="prompts-list">
+                  {currentTemplate.prompts.map((prompt: any, index: number) => (
+                    <div key={prompt.id || index} className="prompt-item">
+                      <div className="prompt-header">
+                        <strong>{prompt.id}</strong>
+                        <span className="prompt-count">({prompt.textCount}개)</span>
+                      </div>
+                      <div className="prompt-description">{prompt.description}</div>
+                      <textarea
+                        value={prompt.content}
+                        readOnly
+                        className="api-input api-textarea"
+                        rows={4}
+                        style={{ backgroundColor: '#f5f5f5', cursor: 'default' }}
+                      />
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div style={{ padding: '20px', textAlign: 'center', color: '#999' }}>
+                  선택된 템플릿에 프롬프트가 없습니다.
                 </div>
               )}
-
-              <button
-                onClick={handleRenderDirectJson}
-                className="btn btn-secondary"
-                style={{ width: '100%' }}
-              >
-                JSON 렌더링
-              </button>
             </div>
 
             <div className="templates-section">
@@ -450,6 +480,33 @@ function App() {
                   조회할 템플릿이 없습니다.
                 </div>
               )}
+            </div>
+
+            <div className="direct-json-section">
+              <h3>직접 JSON 입력</h3>
+              <div className="direct-json-input-group">
+                <textarea
+                  value={directJsonState.encodedJson}
+                  onChange={(e) => setDirectJsonState((prev) => ({ ...prev, encodedJson: e.target.value, error: null }))}
+                  placeholder="Base64 encoded JSON 또는 일반 JSON을 여기에 붙여넣으세요"
+                  className="api-input api-textarea"
+                  rows={6}
+                />
+              </div>
+
+              {directJsonState.error && (
+                <div className="error-message">
+                  <strong>Error:</strong> {directJsonState.error}
+                </div>
+              )}
+
+              <button
+                onClick={handleRenderDirectJson}
+                className="btn btn-secondary"
+                style={{ width: '100%' }}
+              >
+                JSON 렌더링
+              </button>
             </div>
           </div>
 

@@ -66,6 +66,14 @@
   border-left-color: #8b5cf6;
 }
 
+.prompt-edit-section {
+  margin-bottom: 24px;
+  padding: 16px;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+  border-left: 4px solid #f59e0b;
+}
+
 .templates-section {
   margin-bottom: 24px;
   padding: 16px;
@@ -76,6 +84,7 @@
 
 .api-section h3,
 .direct-json-section h3,
+.prompt-edit-section h3,
 .templates-section h3 {
   font-size: 14px;
   font-weight: 600;
@@ -360,6 +369,40 @@ select.api-input {
 
 .templates-table tbody tr:last-child td {
   border-bottom: none;
+}
+
+.prompts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.prompt-item {
+  padding: 12px;
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+}
+
+.prompt-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 12px;
+}
+
+.prompt-count {
+  color: #666;
+  font-size: 11px;
+  font-weight: normal;
+}
+
+.prompt-description {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 8px;
+  padding: 4px 0;
 }
 
 @media (max-width: 1200px) {
