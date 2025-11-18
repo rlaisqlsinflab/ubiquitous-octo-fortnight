@@ -275,6 +275,11 @@ function App() {
     }
   };
 
+  const handleAutoResizeTextarea = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    e.target.style.height = 'auto';
+    e.target.style.height = Math.min(e.target.scrollHeight, 600) + 'px';
+  };
+
   const handleSaveTemplate = async () => {
     if (!editingTemplate || !apiState.templateKey) {
       showMessage('error', '템플릿을 불러와주세요');
@@ -505,15 +510,16 @@ function App() {
                         </label>
                         <textarea
                           value={editingTemplate.curriculum.content || ''}
-                          onChange={(e) =>
+                          onChange={(e) => {
                             setEditingTemplate((prev: any) => ({
                               ...prev,
                               curriculum: { ...prev.curriculum, content: e.target.value },
-                            }))
-                          }
+                            }));
+                            handleAutoResizeTextarea(e);
+                          }}
                           className="api-input api-textarea"
-                          rows={6}
-                          style={{ width: '100%' }}
+                          rows={4}
+                          style={{ width: '100%', resize: 'none', overflow: 'hidden' }}
                         />
                       </div>
                     </div>
@@ -562,10 +568,11 @@ function App() {
                                 ...prev,
                                 prompts: updatedPrompts,
                               }));
+                              handleAutoResizeTextarea(e);
                             }}
                             className="api-input api-textarea"
-                            rows={6}
-                            style={{ width: '100%' }}
+                            rows={4}
+                            style={{ width: '100%', resize: 'none', overflow: 'hidden' }}
                           />
                         </div>
                       ))}
