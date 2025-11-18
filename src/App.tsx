@@ -736,10 +736,9 @@ function App() {
               )}
             </div>
 
-            {editingTemplate && (
             <div className="templates-section">
               <h3>템플릿 목록</h3>
-              {isLoadingTemplates ? (
+              {editingTemplate && (isLoadingTemplates ? (
                 <div style={{ padding: '20px', textAlign: 'center', color: '#999' }}>
                   템플릿 목록을 불러오는 중...
                 </div>
@@ -786,9 +785,8 @@ function App() {
                 <div style={{ padding: '20px', textAlign: 'center', color: '#999' }}>
                   조회할 템플릿이 없습니다.
                 </div>
-              )}
+              ) : null)}
             </div>
-            )}
 
             <div className="direct-json-section">
               <h3>직접 JSON 입력</h3>
