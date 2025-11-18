@@ -738,54 +738,56 @@ function App() {
 
             <div className="templates-section">
               <h3>템플릿 목록</h3>
-              {editingTemplate && (isLoadingTemplates ? (
-                <div style={{ padding: '20px', textAlign: 'center', color: '#999' }}>
-                  템플릿 목록을 불러오는 중...
-                </div>
-              ) : templatesList.length > 0 ? (
-                <div className="templates-table-wrapper">
-                  <table className="templates-table">
-                    <thead>
-                      <tr>
-                        <th>Template Key</th>
-                        <th>프롬프트</th>
-                        <th>예제</th>
-                        <th>커리큘럼</th>
-                        <th>히스토리</th>
-                        <th>수정 시간</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {templatesList.map((template) => (
-                        <tr key={template.templateKey}>
-                          <td style={{ fontWeight: 'bold', color: '#0066cc' }}>
-                            {template.templateKey}
-                          </td>
-                          <td style={{ textAlign: 'center' }}>
-                            {template.promptCount}
-                          </td>
-                          <td style={{ textAlign: 'center' }}>
-                            {template.exampleCount}
-                          </td>
-                          <td style={{ textAlign: 'center' }}>
-                            {template.hasCurriculum ? '✓' : '✗'}
-                          </td>
-                          <td style={{ textAlign: 'center' }}>
-                            {template.historyCount}
-                          </td>
-                          <td style={{ fontSize: '12px', color: '#666' }}>
-                            {new Date(template.updatedAt).toLocaleDateString('ko-KR')}
-                          </td>
+              {editingTemplate ? (
+                isLoadingTemplates ? (
+                  <div style={{ padding: '20px', textAlign: 'center', color: '#999' }}>
+                    템플릿 목록을 불러오는 중...
+                  </div>
+                ) : templatesList.length > 0 ? (
+                  <div className="templates-table-wrapper">
+                    <table className="templates-table">
+                      <thead>
+                        <tr>
+                          <th>Template Key</th>
+                          <th>프롬프트</th>
+                          <th>예제</th>
+                          <th>커리큘럼</th>
+                          <th>히스토리</th>
+                          <th>수정 시간</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              ) : (
-                <div style={{ padding: '20px', textAlign: 'center', color: '#999' }}>
-                  조회할 템플릿이 없습니다.
-                </div>
-              ) : null)}
+                      </thead>
+                      <tbody>
+                        {templatesList.map((template) => (
+                          <tr key={template.templateKey}>
+                            <td style={{ fontWeight: 'bold', color: '#0066cc' }}>
+                              {template.templateKey}
+                            </td>
+                            <td style={{ textAlign: 'center' }}>
+                              {template.promptCount}
+                            </td>
+                            <td style={{ textAlign: 'center' }}>
+                              {template.exampleCount}
+                            </td>
+                            <td style={{ textAlign: 'center' }}>
+                              {template.hasCurriculum ? '✓' : '✗'}
+                            </td>
+                            <td style={{ textAlign: 'center' }}>
+                              {template.historyCount}
+                            </td>
+                            <td style={{ fontSize: '12px', color: '#666' }}>
+                              {new Date(template.updatedAt).toLocaleDateString('ko-KR')}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <div style={{ padding: '20px', textAlign: 'center', color: '#999' }}>
+                    조회할 템플릿이 없습니다.
+                  </div>
+                )
+              ) : null}
             </div>
 
             <div className="direct-json-section">
