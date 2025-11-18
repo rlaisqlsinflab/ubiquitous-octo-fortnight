@@ -145,8 +145,8 @@ function App() {
         textarea.style.height = 'auto';
         textarea.style.height = textarea.scrollHeight + 'px';
       });
-    }, 0);
-  }, [editingTemplate]);
+    }, 50);
+  }, [editingTemplate, expandedPrompts]);
 
   // API 로딩 중 경과 시간 업데이트
   useEffect(() => {
