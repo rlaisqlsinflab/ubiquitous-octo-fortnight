@@ -66,8 +66,17 @@
   border-left-color: #8b5cf6;
 }
 
+.templates-section {
+  margin-bottom: 24px;
+  padding: 16px;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+  border-left: 4px solid #10b981;
+}
+
 .api-section h3,
-.direct-json-section h3 {
+.direct-json-section h3,
+.templates-section h3 {
   font-size: 14px;
   font-weight: 600;
   margin: 0 0 12px 0;
@@ -303,6 +312,54 @@ select.api-input {
     transform: translateX(0);
     opacity: 1;
   }
+}
+
+.templates-table-wrapper {
+  overflow-x: auto;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  background-color: white;
+}
+
+.templates-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.templates-table thead {
+  background-color: #f3f4f6;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.templates-table th {
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
+  color: #374151;
+  border-right: 1px solid #e5e7eb;
+}
+
+.templates-table th:last-child {
+  border-right: none;
+}
+
+.templates-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #e5e7eb;
+  border-right: 1px solid #e5e7eb;
+}
+
+.templates-table td:last-child {
+  border-right: none;
+}
+
+.templates-table tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+.templates-table tbody tr:last-child td {
+  border-bottom: none;
 }
 
 @media (max-width: 1200px) {
