@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { decompressFromBase64 } from 'lz-string';
 import ViewOnlyFrame from './components/ViewOnlyFrame';
 import './App.css';
+import { listTemplates } from './hooks/useEditorData/templateService';
+import { generateTemplateOptions, DEFAULT_TEMPLATE_OPTIONS } from './utils/getTemplateOptions';
 
 interface ApiRequestState {
   courseId: string;
@@ -25,14 +27,6 @@ interface PreviewState {
   encodedJson: string;
   error: string | null;
 }
-
-const TEMPLATE_OPTIONS = [
-  { value: 'PROBLEM', label: 'PROBLEM (문제해결형)' },
-  { value: 'RESULT', label: 'RESULT (결과물 중심형)' },
-  { value: 'STORY', label: 'STORY (강사 스토리형)' },
-  { value: 'CUSTOM', label: 'CUSTOM' },
-  { value: 'TEST', label: 'TEST' },
-];
 
 const LANGUAGE_OPTIONS = [
   { value: 'en', label: 'English' },
@@ -66,6 +60,30 @@ function App() {
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [elapsedTime, setElapsedTime] = useState(0);
   const [completionTime, setCompletionTime] = useState<number | null>(null);
+  const [templateOptions, setTemplateOptions] = useState(DEFAULT_TEMPLATE_OPTIONS);
+  const [isLoadingTemplates, setIsLoadingTemplates] = useState(true);
+
+  // 템플릿 목록 조회
+  useEffect(() => {
+    const fetchTemplates = async () => {
+      try {
+        const response = await listTemplates();
+        if (response.data?.templates) {
+          const templateKeys = response.data.templates.map((t) => t.templateKey);
+          const options = generateTemplateOptions(templateKeys);
+          setTemplateOptions(options);
+        }
+      } catch (error) {
+        console.error('Failed to load templates:', error);
+        // API 실패 시 기본값 사용
+        setTemplateOptions(DEFAULT_TEMPLATE_OPTIONS);
+      } finally {
+        setIsLoadingTemplates(false);
+      }
+    };
+
+    fetchTemplates();
+  }, []);
 
   // API 로딩 중 경과 시간 업데이트
   useEffect(() => {
@@ -281,7 +299,7 @@ function App() {
                   onChange={(e) => setApiState((prev) => ({ ...prev, templateKey: e.target.value, apiError: null }))}
                   className="api-input"
                 >
-                  {TEMPLATE_OPTIONS.map((option) => (
+                  {templateOptions.map((option) => (
                     <option key={option.value} value={option.value}>
                       {option.label}
                     </option>
