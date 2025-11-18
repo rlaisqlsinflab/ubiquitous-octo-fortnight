@@ -736,6 +736,7 @@ function App() {
               )}
             </div>
 
+            {editingTemplate && (
             <div className="templates-section">
               <h3>템플릿 목록</h3>
               {isLoadingTemplates ? (
@@ -787,6 +788,7 @@ function App() {
                 </div>
               )}
             </div>
+            )}
 
             <div className="direct-json-section">
               <h3>직접 JSON 입력</h3>
