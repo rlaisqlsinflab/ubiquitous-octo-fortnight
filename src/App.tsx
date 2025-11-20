@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { decompressFromBase64 } from 'lz-string';
 import ViewOnlyFrame from './components/ViewOnlyFrame';
 import './App.css';
-import { listTemplates, getTemplate, updateTemplatePrompt } from './hooks/useEditorData/templateService';
+import { listTemplates, getTemplate, updateTemplatePrompt, duplicateTemplate } from './hooks/useEditorData/templateService';
 import { generateTemplateOptions, DEFAULT_TEMPLATE_OPTIONS } from './utils/getTemplateOptions';
 
 interface ApiRequestState {
@@ -28,16 +28,9 @@ interface PreviewState {
   error: string | null;
 }
 
-const LANGUAGE_OPTIONS = [
-  { value: 'en', label: 'English' },
-  { value: 'ja', label: '日本語' },
-  { value: 'vi', label: 'Tiếng Việt' },
-  { value: 'ko', label: '한국어' },
-];
-
 function App() {
   const [apiState, setApiState] = useState<ApiRequestState>({
-    courseId: '335826',
+    courseId: '330459',
     templateKey: 'STORY',
     language: 'ko',
     prompt: '',
@@ -77,6 +70,7 @@ function App() {
   const [isUpdatingTemplate, setIsUpdatingTemplate] = useState(false);
   const [updateError, setUpdateError] = useState<string | null>(null);
   const [expandedPrompts, setExpandedPrompts] = useState<{ [key: string]: boolean }>({});
+  const [isExpandedCurriculum, setIsExpandedCurriculum] = useState(false);
   const [isCloneModalOpen, setIsCloneModalOpen] = useState(false);
   const [cloneTemplateName, setCloneTemplateName] = useState('');
   const [cloneError, setCloneError] = useState<string | null>(null);
@@ -150,7 +144,7 @@ function App() {
         textarea.style.height = textarea.scrollHeight + 'px';
       });
     }, 50);
-  }, [editingTemplate, expandedPrompts]);
+  }, [editingTemplate, expandedPrompts, isExpandedCurriculum]);
 
   // API 로딩 중 경과 시간 업데이트
   useEffect(() => {
@@ -231,9 +225,9 @@ function App() {
         requestBody.jsonBody = apiState.jsonBody;
       }
 
+      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
       const url = new URL(
-        // `https://internal-devops-api.inflearn.com/v1/internal/course/${apiState.courseId}/description/generations`
-        `http://localhost:8080/v1/internal/course/${apiState.courseId}/description/generations`
+        `${apiBaseUrl}/v1/internal/course/${apiState.courseId}/description/generations`
       );
       url.searchParams.append('language', apiState.language);
 
@@ -366,30 +360,29 @@ function App() {
     setCloneError(null);
 
     try {
-      const payload = {
-        prompts: editingTemplate.prompts?.map((p: any) => ({
-          id: p.id,
-          description: p.description,
-          content: p.content,
-          textCount: p.textCount,
-        })),
-        examples: editingTemplate.examples,
-        curriculum: editingTemplate.curriculum,
-      };
-
-      const response = await updateTemplatePrompt(cloneTemplateName, payload);
+      const response = await duplicateTemplate(apiState.templateKey, cloneTemplateName);
       console.log('Clone response:', response);
 
       if (response?.data || response?.statusCode === 'OK' || response?.code === '200') {
-        // 복제된 템플릿으로 이동
-        setApiState((prev) => ({
-          ...prev,
-          templateKey: cloneTemplateName,
-        }));
+        // 복제된 템플릿 상세 정보 조회
+        const clonedTemplateResponse = await getTemplate(cloneTemplateName);
+        console.log('Cloned template details:', clonedTemplateResponse);
 
-        setIsCloneModalOpen(false);
-        setCloneTemplateName('');
-        showMessage('success', `${cloneTemplateName} 템플릿이 생성되었습니다`);
+        if (clonedTemplateResponse?.data) {
+          // 상태 업데이트
+          setCurrentTemplate(clonedTemplateResponse.data);
+          setEditingTemplate(JSON.parse(JSON.stringify(clonedTemplateResponse.data)));
+          setApiState((prev) => ({
+            ...prev,
+            templateKey: cloneTemplateName,
+          }));
+
+          setIsCloneModalOpen(false);
+          setCloneTemplateName('');
+          showMessage('success', `${cloneTemplateName} 템플릿이 생성되었습니다`);
+        } else {
+          throw new Error('클론된 템플릿 조회 실패');
+        }
       } else {
         throw new Error('API 응답이 예상과 다릅니다');
       }
@@ -531,18 +524,6 @@ function App() {
                   ))}
                 </select>
 
-                <select
-                  value={apiState.language}
-                  onChange={(e) => setApiState((prev) => ({ ...prev, language: e.target.value, apiError: null }))}
-                  className="api-input"
-                >
-                  {LANGUAGE_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-
                 {apiState.templateKey === 'CUSTOM' && (
                   <>
                     <textarea
@@ -613,61 +594,79 @@ function App() {
                   {/* 커리큘럼 섹션 */}
                   {editingTemplate.curriculum && (
                     <div style={{ borderBottom: '1px solid #e0e0e0', paddingBottom: '16px' }}>
-                      <h4 style={{ margin: '0 0 12px 0', color: '#1a1a1a', fontSize: '14px', fontWeight: '600' }}>
-                        커리큘럼 생성
-                      </h4>
-                      <div style={{ marginBottom: '12px' }}>
-                        <label style={{ display: 'block', fontSize: '12px', color: '#666', marginBottom: '4px', fontWeight: '500' }}>
-                          이름
-                        </label>
-                        <input
-                          type="text"
-                          value={editingTemplate.curriculum.name || ''}
-                          onChange={(e) =>
-                            setEditingTemplate((prev: any) => ({
-                              ...prev,
-                              curriculum: { ...prev.curriculum, name: e.target.value },
-                            }))
-                          }
-                          className="api-input"
-                          style={{ width: '100%' }}
-                        />
+                      <div
+                        onClick={() => setIsExpandedCurriculum(!isExpandedCurriculum)}
+                        style={{
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          marginBottom: '12px',
+                        }}
+                      >
+                        <span style={{ fontSize: '14px', color: '#666' }}>
+                          {isExpandedCurriculum ? '▼' : '▶'}
+                        </span>
+                        <h4 style={{ margin: '0', color: '#1a1a1a', fontSize: '14px', fontWeight: '600' }}>
+                          커리큘럼 생성
+                        </h4>
                       </div>
-                      <div style={{ marginBottom: '12px' }}>
-                        <label style={{ display: 'block', fontSize: '12px', color: '#666', marginBottom: '4px', fontWeight: '500' }}>
-                          설명
-                        </label>
-                        <input
-                          type="text"
-                          value={editingTemplate.curriculum.description || ''}
-                          onChange={(e) =>
-                            setEditingTemplate((prev: any) => ({
-                              ...prev,
-                              curriculum: { ...prev.curriculum, description: e.target.value },
-                            }))
-                          }
-                          className="api-input"
-                          style={{ width: '100%' }}
-                        />
-                      </div>
-                      <div>
-                        <label style={{ display: 'block', fontSize: '12px', color: '#666', marginBottom: '4px', fontWeight: '500' }}>
-                          프롬프트 내용
-                        </label>
-                        <textarea
-                          value={editingTemplate.curriculum.content || ''}
-                          onChange={(e) => {
-                            setEditingTemplate((prev: any) => ({
-                              ...prev,
-                              curriculum: { ...prev.curriculum, content: e.target.value },
-                            }));
-                            handleAutoResizeTextarea(e);
-                          }}
-                          className="api-input api-textarea auto-resize-textarea"
-                          rows={4}
-                          style={{ width: '100%', resize: 'none', overflow: 'hidden' }}
-                        />
-                      </div>
+                      {isExpandedCurriculum && (
+                        <div style={{ paddingLeft: '22px' }}>
+                          <div style={{ marginBottom: '12px' }}>
+                            <label style={{ display: 'block', fontSize: '12px', color: '#666', marginBottom: '4px', fontWeight: '500' }}>
+                              이름
+                            </label>
+                            <input
+                              type="text"
+                              value={editingTemplate.curriculum.name || ''}
+                              onChange={(e) =>
+                                setEditingTemplate((prev: any) => ({
+                                  ...prev,
+                                  curriculum: { ...prev.curriculum, name: e.target.value },
+                                }))
+                              }
+                              className="api-input"
+                              style={{ width: '100%' }}
+                            />
+                          </div>
+                          <div style={{ marginBottom: '12px' }}>
+                            <label style={{ display: 'block', fontSize: '12px', color: '#666', marginBottom: '4px', fontWeight: '500' }}>
+                              설명
+                            </label>
+                            <input
+                              type="text"
+                              value={editingTemplate.curriculum.description || ''}
+                              onChange={(e) =>
+                                setEditingTemplate((prev: any) => ({
+                                  ...prev,
+                                  curriculum: { ...prev.curriculum, description: e.target.value },
+                                }))
+                              }
+                              className="api-input"
+                              style={{ width: '100%' }}
+                            />
+                          </div>
+                          <div>
+                            <label style={{ display: 'block', fontSize: '12px', color: '#666', marginBottom: '4px', fontWeight: '500' }}>
+                              프롬프트 내용
+                            </label>
+                            <textarea
+                              value={editingTemplate.curriculum.content || ''}
+                              onChange={(e) => {
+                                setEditingTemplate((prev: any) => ({
+                                  ...prev,
+                                  curriculum: { ...prev.curriculum, content: e.target.value },
+                                }));
+                                handleAutoResizeTextarea(e);
+                              }}
+                              className="api-input api-textarea auto-resize-textarea"
+                              rows={4}
+                              style={{ width: '100%', resize: 'none', overflow: 'hidden' }}
+                            />
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
 
@@ -815,62 +814,8 @@ function App() {
               )}
             </div>
 
-            <div className="templates-section">
-              <h3>템플릿 목록</h3>
-              {editingTemplate ? (
-                isLoadingTemplates ? (
-                  <div style={{ padding: '20px', textAlign: 'center', color: '#999' }}>
-                    템플릿 목록을 불러오는 중...
-                  </div>
-                ) : templatesList.length > 0 ? (
-                  <div className="templates-table-wrapper">
-                    <table className="templates-table">
-                      <thead>
-                        <tr>
-                          <th>Template Key</th>
-                          <th>프롬프트</th>
-                          <th>예제</th>
-                          <th>커리큘럼</th>
-                          <th>히스토리</th>
-                          <th>수정 시간</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {templatesList.map((template) => (
-                          <tr key={template.templateKey}>
-                            <td style={{ fontWeight: 'bold', color: '#0066cc' }}>
-                              {template.templateKey}
-                            </td>
-                            <td style={{ textAlign: 'center' }}>
-                              {template.promptCount}
-                            </td>
-                            <td style={{ textAlign: 'center' }}>
-                              {template.exampleCount}
-                            </td>
-                            <td style={{ textAlign: 'center' }}>
-                              {template.hasCurriculum ? '✓' : '✗'}
-                            </td>
-                            <td style={{ textAlign: 'center' }}>
-                              {template.historyCount}
-                            </td>
-                            <td style={{ fontSize: '12px', color: '#666' }}>
-                              {new Date(template.updatedAt).toLocaleDateString('ko-KR')}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                ) : (
-                  <div style={{ padding: '20px', textAlign: 'center', color: '#999' }}>
-                    조회할 템플릿이 없습니다.
-                  </div>
-                )
-              ) : null}
-            </div>
-
             <div className="direct-json-section">
-              <h3>직접 JSON 입력</h3>
+              <h3>직접 JSON 입력 (개발 디버그용)</h3>
               <div className="direct-json-input-group">
                 <textarea
                   value={directJsonState.encodedJson}

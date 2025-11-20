@@ -148,6 +148,7 @@ select.api-input {
   padding: 0 0 12px 0;
   margin-bottom: 0;
   margin-top: 0;
+  border-bottom: none;
 }
 
 .json-input {

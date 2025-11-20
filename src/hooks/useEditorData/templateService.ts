@@ -4,6 +4,8 @@
  * API Base: /v1/internal/course/description
  */
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '${API_BASE_URL}';
+
 interface TemplateListItem {
   templateKey: string;
   exampleCount: number;
@@ -69,7 +71,7 @@ export async function updateTemplatePrompt(
   payload: UpdateTemplatePayload
 ): Promise<TemplateApiResponse<UpdateTemplateResponse>> {
   const response = await fetch(
-    `http://localhost:8080/v1/internal/course/description/templates/${templateKey}`,
+    `${API_BASE_URL}/v1/internal/course/description/templates/${templateKey}`,
     {
       method: 'PUT',
       headers: {
@@ -97,7 +99,7 @@ export async function getTemplate(
   templateKey: string
 ): Promise<TemplateApiResponse<unknown>> {
   const response = await fetch(
-    `http://localhost:8080/v1/internal/course/description/templates/${templateKey}`
+    `${API_BASE_URL}/v1/internal/course/description/templates/${templateKey}`
   );
 
   if (!response.ok) {
@@ -115,7 +117,7 @@ export async function getTemplateHistory(
   templateKey: string
 ): Promise<TemplateApiResponse<unknown>> {
   const response = await fetch(
-    `http://localhost:8080/v1/internal/course/description/templates/${templateKey}/history`
+    `${API_BASE_URL}/v1/internal/course/description/templates/${templateKey}/history`
   );
 
   if (!response.ok) {
@@ -133,7 +135,7 @@ export async function deleteTemplate(
   templateKey: string
 ): Promise<TemplateApiResponse<null>> {
   const response = await fetch(
-    `http://localhost:8080/v1/internal/description/templates/${templateKey}`,
+    `${API_BASE_URL}/v1/internal/description/templates/${templateKey}`,
     {
       method: 'DELETE',
     }
@@ -152,7 +154,7 @@ export async function deleteTemplate(
  * 모든 템플릿을 최신순(updatedAt 기준)으로 정렬하여 반환
  */
 export async function listTemplates(): Promise<TemplateListResponse> {
-  const response = await fetch('http://localhost:8080/v1/internal/course/description/templates');
+  const response = await fetch(`${API_BASE_URL}/v1/internal/course/description/templates`);
 
   if (!response.ok) {
     throw new Error(`Failed to list templates: ${response.statusText}`);
@@ -187,7 +189,7 @@ export async function autoCreateTemplate(
   payload: AutoCreateTemplatePayload
 ): Promise<TemplateApiResponse<UpdateTemplateResponse>> {
   const response = await fetch(
-    'http://localhost:8080/v1/internal/course/description/templates/auto',
+    `${API_BASE_URL}/v1/internal/course/description/templates/auto`,
     {
       method: 'POST',
       headers: {
@@ -201,6 +203,39 @@ export async function autoCreateTemplate(
     const errorData = await response.json().catch(() => ({}));
     throw new Error(
       errorData.message || `Failed to create template: ${response.statusText}`
+    );
+  }
+
+  return response.json();
+}
+
+/**
+ * 템플릿 복제 API
+ * POST /v1/internal/course/description/templates/duplicate
+ * 기존 템플릿을 복제하여 새로운 템플릿을 생성합니다
+ */
+export async function duplicateTemplate(
+  sourceTemplateKey: string,
+  newTemplateKey: string
+): Promise<TemplateApiResponse<UpdateTemplateResponse>> {
+  const response = await fetch(
+    `${API_BASE_URL}/v1/internal/course/description/templates/duplicate`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        sourceTemplateKey,
+        newTemplateKey,
+      }),
+    }
+  );
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(
+      errorData.message || `Failed to duplicate template: ${response.statusText}`
     );
   }
 
